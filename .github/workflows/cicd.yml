@@ -1,48 +1,94 @@
-name: DevOps CI/CD Pipeline
+name: DevOps End-to-End CI/CD Pipeline
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
-  build-and-deploy:
-    name: Build, Containerize & Deploy to Kubernetes
+  validate-infrastructure:
+    name: 1. Validate Terraform IaC & Ansible Playbooks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.0
+
+      - name: Terraform Validate
+        run: |
+          cd terraform
+          terraform init -backend=false
+          terraform validate
+          echo "Terraform IaC manifests validated successfully!"
+
+      - name: Validate Ansible Playbook Syntax
+        run: |
+          sudo apt-get update && sudo apt-get install -y ansible
+          ansible-playbook --syntax-check ansible/setup.yml
+          echo "Ansible playbook syntax verified successfully!"
+
+  build-test-and-deploy:
+    name: 2. Docker Build, Test & Deploy to Kubernetes
+    needs: validate-infrastructure
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker Image
+      - name: Build Docker Application Image
         run: |
-          echo "Building Docker container image for devops-lab-app..."
+          echo "Building Docker container image for DevOps Web App..."
           docker build -t devops-lab-app:latest ./app
           docker images devops-lab-app:latest
 
-      - name: Run Container Integration Test
+      - name: Run Docker Container Integration Test
         run: |
+          echo "Running container health test..."
           docker run -d --name test-container -p 8080:80 devops-lab-app:latest
-          sleep 3
+          sleep 4
           curl -f http://localhost:8080 || exit 1
           echo "Container health check passed successfully!"
           docker stop test-container
+          docker rm test-container
 
-      - name: Set up Kubernetes Context
-        uses: azure/k8s-set-context@v3
+      - name: Create Kubernetes Cluster (KinD)
+        uses: helm/kind-action@v1
         with:
-          method: kubeconfig
-          kubeconfig: ${{ secrets.KUBECONFIG }}
+          cluster_name: devops-cluster
+          wait: 120s
 
-      - name: Deploy to Kubernetes Cluster
+      - name: Load Docker Image into Kubernetes Cluster
         run: |
-          echo "Applying Kubernetes manifests..."
+          echo "Loading local Docker image into KinD cluster..."
+          kind load docker-image devops-lab-app:latest --name devops-cluster
+
+      - name: Deploy Manifests to Kubernetes
+        run: |
+          echo "Applying Kubernetes Deployment and Service..."
           kubectl apply -f k8s/deployment.yml
           kubectl apply -f k8s/service.yml
-          kubectl rollout status deployment/devops-app --timeout=60s
+          
+          echo "Waiting for rollout to complete..."
+          kubectl rollout status deployment/devops-app --timeout=90s
+          
+          echo "Checking Pods and Services:"
           kubectl get pods -l app=devops -o wide
           kubectl get svc devops-service
+
+      - name: Verify Live Application on Kubernetes
+        run: |
+          echo "Verifying application response from Kubernetes cluster..."
+          kubectl port-forward svc/devops-service 8085:80 &
+          sleep 5
+          curl -f http://localhost:8085
+          echo -e "\nAll DevOps VLE-5 pipeline stages executed successfully!"
