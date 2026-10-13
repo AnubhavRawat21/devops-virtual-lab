@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps CI/CD Virtual Lab - VLE-5</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.3);
+            --success: #10b981;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+        body {
+            background: radial-gradient(circle at top, #1e1b4b 0%, #0b0f19 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+        .badge {
+            display: inline-block;
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
+            padding: 0.4rem 1.2rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #93c5fd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 1.125rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+        .pipeline-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .pipeline-node {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1rem 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .pipeline-node:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            box-shadow: 0 8px 20px var(--accent-glow);
+        }
+        .pipeline-node .icon {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        .pipeline-node .title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        .pipeline-node .status {
+            font-size: 0.75rem;
+            color: var(--success);
+            font-weight: 500;
+            margin-top: 0.25rem;
+        }
+        .student-card {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+        .student-card strong {
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="badge">VIRTUAL LAB EXPERIMENT - 5</div>
+        <h1>DevOps CI/CD Virtual Lab</h1>
+        <p class="subtitle">Deployed using Git, Terraform, Ansible, Docker & Kubernetes with Automated GitHub Actions Pipeline</p>
+        
+        <div class="pipeline-grid">
+            <div class="pipeline-node">
+                <div class="icon">📦</div>
+                <div class="title">Git</div>
+                <div class="status">● Versioned</div>
+            </div>
+            <div class="pipeline-node">
+                <div class="icon">⚡</div>
+                <div class="title">GitHub Actions</div>
+                <div class="status">● Automated</div>
+            </div>
+            <div class="pipeline-node">
+                <div class="icon">🏗️</div>
+                <div class="title">Terraform</div>
+                <div class="status">● Provisioned</div>
+            </div>
+            <div class="pipeline-node">
+                <div class="icon">⚙️</div>
+                <div class="title">Ansible</div>
+                <div class="status">● Configured</div>
+            </div>
+            <div class="pipeline-node">
+                <div class="icon">🐳</div>
+                <div class="title">Docker</div>
+                <div class="status">● Containerized</div>
+            </div>
+            <div class="pipeline-node">
+                <div class="icon">☸️</div>
+                <div class="title">Kubernetes</div>
+                <div class="status">● Scaled (2 Pods)</div>
+            </div>
+        </div>
+
+        <div class="student-card">
+            Student: <strong>Anubhav Rawat</strong> &nbsp;|&nbsp; Reg No: <strong>RA2311050010057</strong> &nbsp;|&nbsp; Status: <span style="color: #10b981; font-weight: 600;">HEALTHY (HTTP 200 OK)</span>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,48 @@
+name: DevOps CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    name: Build, Containerize & Deploy to Kubernetes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker Image
+        run: |
+          echo "Building Docker container image for devops-lab-app..."
+          docker build -t devops-lab-app:latest ./app
+          docker images devops-lab-app:latest
+
+      - name: Run Container Integration Test
+        run: |
+          docker run -d --name test-container -p 8080:80 devops-lab-app:latest
+          sleep 3
+          curl -f http://localhost:8080 || exit 1
+          echo "Container health check passed successfully!"
+          docker stop test-container
+
+      - name: Set up Kubernetes Context
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBECONFIG }}
+
+      - name: Deploy to Kubernetes Cluster
+        run: |
+          echo "Applying Kubernetes manifests..."
+          kubectl apply -f k8s/deployment.yml
+          kubectl apply -f k8s/service.yml
+          kubectl rollout status deployment/devops-app --timeout=60s
+          kubectl get pods -l app=devops -o wide
+          kubectl get svc devops-service

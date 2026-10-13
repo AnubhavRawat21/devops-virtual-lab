@@ -1,0 +1,41 @@
+---
+- name: Configure DevOps Lab Server with Docker & Kubernetes Dependencies
+  hosts: servers
+  become: yes
+  tasks:
+    - name: Update system packages
+      yum:
+        name: "*"
+        state: latest
+        update_cache: yes
+
+    - name: Install Docker package
+      yum:
+        name: docker
+        state: present
+
+    - name: Start and enable Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add ec2-user to docker group
+      user:
+        name: ec2-user
+        groups: docker
+        append: yes
+
+    - name: Install Git for repo cloning
+      yum:
+        name: git
+        state: present
+
+    - name: Verify Docker service status
+      command: docker --version
+      register: docker_ver_output
+      changed_when: false
+
+    - name: Display Docker version
+      debug:
+        msg: "Docker successfully configured: {{ docker_ver_output.stdout }}"
